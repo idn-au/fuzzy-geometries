@@ -1,0 +1,21 @@
+body, html {
+    margin: 0;
+}
+
+body {
+    height: 100vh;
+    padding: 12px;
+}
+
+#content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    div {
+        padding: 8px;
+    }
+}
+
+pre {
+    white-space: pre-wrap;
+}
