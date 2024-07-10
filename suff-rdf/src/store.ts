@@ -1,7 +1,7 @@
 import { Store, Parser, DataFactory, type Quad_Object, Quad_Subject } from "n3";
 import { JsonLdParser } from "jsonld-streaming-parser";
 import { promisifyEventEmitter } from 'event-emitter-promisify';
-import { DEFAULT_PREFIXES } from "./consts";
+// import { DEFAULT_PREFIXES } from "./consts";
 
 const { namedNode } = DataFactory;
 

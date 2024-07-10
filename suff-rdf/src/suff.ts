@@ -1,8 +1,9 @@
 import { Quad_Object } from "n3";
 import { wktToGeoJSON } from "@terraformer/wkt";
 import { RDFStore } from "./store";
+import { Feat, FeatColl, Geom } from "./types";
 
-export async function parse(data: string, format?: string) {
+export async function parse(data: string, format?: string): Promise<FeatColl> {
     const store = new RDFStore();
     await store.load(data, format);
     let lom = "";
@@ -33,29 +34,28 @@ export async function parse(data: string, format?: string) {
         }
     }
 
-    let geometries = [];
+    let features: Feat[] = [];
 
     switch (lom) {
         case "nominal":
-            geometries = nominal(geometryCollection, store);
+            features = nominal(geometryCollection, store, featureProps);
             break;
         case "ordinal":
-            geometries = ordinal(geometryCollection, store);
+            features = ordinal(geometryCollection, store, featureProps);
             break;
         case "interval":
-            geometries = interval(geometryCollection, store);
+            features = interval(geometryCollection, store, featureProps);
             break;
         case "ratio":
-            geometries = ratio(geometryCollection, store);
+            features = ratio(geometryCollection, store, featureProps);
             break;
         default:
             console.log("Invalid level of measurement");
     }
 
-    const geojson = {
-        "type": "Feature",
-        "properties": featureProps,
-        "geometries": geometries
+    const geojson: FeatColl = {
+        type: "FeatureCollection",
+        features: features,
     };
 
     return geojson;
@@ -68,37 +68,73 @@ export async function parse(data: string, format?: string) {
  * @param store the N3.js-based RDF store object
  * @returns the list of geometries
  */
-function nominal(geometryCollection: Quad_Object, store: RDFStore): any[] {
-    const geometries = [];
+function nominal(geometryCollection: Quad_Object, store: RDFStore, featureProps: {[key: string]: any}): Feat[] {
+    const features: Feat[] = [];
     const geoms = store.getObjects(geometryCollection.id, "http://www.w3.org/2000/01/rdf-schema#member");
 
     if (geoms.length === 0) {
-        return geometries;
+        return features;
     }
 
     const certainty = 1 / geoms.length;
     geoms.forEach(geom => {
         const g = store.getObject(geom.id, "http://www.opengis.net/ont/geosparql#asWKT")!.value;
         const citation = store.getObject(geom.id, "https://schema.org/citation")?.value;
-        const coords = wktToGeoJSON(g);
-        coords["attributes"] = {
-            certainty: certainty,
-            citation: citation,
-        };
-        geometries.push(coords);
+        const geometry = wktToGeoJSON(g) as Geom;
+        const feature = {
+            type: "Feature",
+            properties: {
+                certainty: certainty,
+                citation: citation,
+                ...featureProps,
+            },
+            geometry: geometry,
+        } as Feat;
+        features.push(feature);
     });
 
-    return geometries;
+    return features;
+}
+// @ts-ignore
+function ordinal(geometryCollection: Quad_Object, store: RDFStore, featureProps: {[key: string]: any}): Feat[] {
+    const features: Feat[] = [];
+    return features;
+}
+// @ts-ignore
+function interval(geometryCollection: Quad_Object, store: RDFStore, featureProps: {[key: string]: any}): Feat[] {
+    const features: Feat[] = [];
+    return features;
 }
 
-function ordinal(geometryCollection: Quad_Object, store: RDFStore) {
+function ratio(geometryCollection: Quad_Object, store: RDFStore, featureProps: {[key: string]: any}): Feat[] {
+    const features: Feat[] = [];
 
-}
+    let orderingPredicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#value";
+    const orderPredicate = store.getObjects(geometryCollection.id, "http://w3id.org/suff/certaintyIndicator");
+    if (orderPredicate.length > 0) {
+        orderingPredicate = orderPredicate[0].value;
+    }
 
-function interval(geometryCollection: Quad_Object, store: RDFStore) {
+    let index = 1;
+    while (true) {
+        const geom = store.getObject(geometryCollection.id, `http://www.w3.org/2000/01/rdf-schema#_${index}`);
+        if (!geom) break;
+        const certainty = store.getObject(geom.id, orderingPredicate)?.value;
+        const g = store.getObject(geom.id, "http://www.opengis.net/ont/geosparql#asWKT")!.value;
+        const citation = store.getObject(geom.id, "https://schema.org/citation")?.value;
+        const geometry = wktToGeoJSON(g) as Geom;
+        const feature = {
+            type: "Feature",
+            properties: {
+                certainty: certainty,
+                citation: citation,
+                ...featureProps,
+            },
+            geometry: geometry,
+        } as Feat;
+        features.push(feature);
+        index++;
+    }
 
-}
-
-function ratio(geometryCollection: Quad_Object, store: RDFStore) {
-
+    return features;
 }

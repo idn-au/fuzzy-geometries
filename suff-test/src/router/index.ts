@@ -13,6 +13,11 @@ const router = createRouter({
             path: "/draw",
             name: "draw",
             component: () => import("@/views/DrawView.vue")
+        },
+        {
+            path: "/contour",
+            name: "contour",
+            component: () => import("@/views/ContourView.vue")
         }
     ]
 });

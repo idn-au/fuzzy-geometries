@@ -13,9 +13,11 @@
     },
     "dependencies": {
         "@terraformer/wkt": "^2.2.1",
+        "@turf/turf": "^7.0.0",
         "ol": "^9.2.4",
         "ol-contextmenu": "^5.4.0",
         "ol-ext": "^4.0.18",
+        "suff-rdf": "workspace:*",
         "vue": "^3.4.21",
         "vue-router": "^4.3.0",
         "vue3-openlayers": "^10.0.1"

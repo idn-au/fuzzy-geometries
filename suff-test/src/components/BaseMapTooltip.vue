@@ -1,10 +1,15 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, computed } from "vue";
+import type Feature from "ol/Feature";
 
 const props = defineProps<{
-    type: string;
-    iri?: string;
+    selectedFeature: Feature;
 }>();
+
+const properties = computed(() => {
+    const { geometry, ...p } = props.selectedFeature.getProperties();
+    return p;
+})
 
 const emit = defineEmits(["deselect"]);
 
@@ -25,6 +30,8 @@ onMounted(() => {
 onUnmounted(() => {
     document.removeEventListener("keyup", onEscape);
 });
+
+console.log(props.selectedFeature.getProperties())
 </script>
 
 <template>
@@ -33,10 +40,10 @@ onUnmounted(() => {
             <span><slot name="title"></slot></span>
             <button class="map-tooltip-close-btn" title="Close" @click="deselect">x</button>
         </div>
-        <div class="type">{{ props.type }}</div>
-        <div v-if="props.iri">IRI: <span class="metadata">{{ props.iri }}</span></div>
-        <div class="metadata">
-            <slot name="metadata"></slot>
+        <div class="properties">
+            <slot name="properties">
+                <div v-for="[key, value] in Object.entries(properties)">{{ key }}: {{ value }}</div>
+            </slot>
         </div>
     </div>
 </template>
@@ -90,7 +97,7 @@ $arrow-size: 8px;
         margin-top: -8px;
     }
 
-    .metadata {
+    .properties {
         font-family: monospace;
         background-color: #f0f0f0;
         padding: 4px;

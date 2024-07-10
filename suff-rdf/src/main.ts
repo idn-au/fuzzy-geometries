@@ -1,5 +1,5 @@
 import { parse } from "./suff";
-import { TEST_TURTLE_DATA_NOMINAL, TEST_TURTLE_DATA_ORDINAL, TEST_JSONLD_DATA_NOMINAL } from "./data";
+import { TEST_TURTLE_DATA_NOMINAL, TEST_JSONLD_DATA_NOMINAL, TEST_TURTLE_DATA_RATIO } from "./data";
 import "./assets/main.scss";
 
 function setupClearButton() {
@@ -25,11 +25,20 @@ async function setupLoadJsonld() {
     });
 }
 
+async function setupLoadTurtleRatio() {
+    document.querySelector<HTMLButtonElement>("#turtleRatioButton")!.addEventListener("click", async () => {
+        document.querySelector<HTMLPreElement>("#data")!.innerText = TEST_TURTLE_DATA_RATIO;
+        const g = await parse(TEST_TURTLE_DATA_RATIO, "text/turtle");
+        document.querySelector<HTMLPreElement>("#output")!.innerText = JSON.stringify(g, null, 4);
+    });
+}
+
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <h1>SUFF RDF</h1>
     <div>
-        <button id="turtleButton">Load Turtle</button>
-        <button id="jsonldButton">Load JSON-LD</button>
+        <button id="turtleButton">Load Turtle Nominal</button>
+        <button id="jsonldButton">Load JSON-LD Nominal</button>
+        <button id="turtleRatioButton">Load Turtle Ratio</button>
         <button id="clear">Clear</button>
     </div>
     <div id="content">
@@ -47,3 +56,4 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 setupClearButton();
 setupLoadTurtle();
 setupLoadJsonld();
+setupLoadTurtleRatio();

@@ -1,26 +1,29 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue";
-import { Layers, Sources, Styles, Interactions, MapControls } from "vue3-openlayers";
+import { Layers, Sources, Styles, Interactions, MapControls, Map } from "vue3-openlayers";
 import { GeoJSON } from "ol/format";
 import type { DrawEvent } from "ol/interaction/Draw";
-import { geojsonToWKT, wktToGeoJSON } from "@terraformer/wkt";
+import { geojsonToWKT } from "@terraformer/wkt";
 import type { ModifyEvent } from "ol/interaction/Modify";
 import BaseMap from "@/components/BaseMap.vue";
 
 const geoJson = new GeoJSON();
 
+const isWkt = ref(true);
 const features = ref<any[]>([])
 const isDrawing = ref(false);
 const isModifying = ref(false);
 
-const sourceRef = ref<InstanceType<typeof Sources.OlSourceVector> | null>(null)
+const sourceRef = ref<InstanceType<typeof Sources.OlSourceVector> | null>(null);
+
+const geometries = computed(() => features.value.map(f => isWkt.value ? geojsonToWKT(f.geometry) : f.geometry));
 
 const featureCollection = computed(() => {
     return geoJson.readFeatures({
         type: "FeatureCollection",
         features: features.value,
     });
-})
+});
 
 function toggleDrawControl(active: boolean) {
     if (active) {
@@ -58,6 +61,7 @@ function modifyend(e: ModifyEvent) {
             <BaseMap :center="[153.01197617738202, -27.483980475242785]" :zoom="10">
                 <template #layers>
                     <Layers.OlVectorLayer title="Features">
+                         <!-- @vue-ignore -->
                         <Sources.OlSourceVector ref="sourceRef" :features="featureCollection">
                             <Interactions.OlInteractionDraw v-if="isDrawing" type="Polygon" @drawend="drawend">
                                 <Styles.OlStyle>
@@ -90,7 +94,13 @@ function modifyend(e: ModifyEvent) {
         </div>
         <div class="data">
             <h2>Features</h2>
-            <pre>{{ JSON.stringify(features, null, 4) }}</pre>
+            <div class="buttons">
+                <button :class="`format-btn ${isWkt ? 'active' : ''}`" @click="isWkt = true">WKT</button>
+                <button :class="`format-btn ${isWkt ? '' : 'active'}`" @click="isWkt = false">GeoJSON</button>
+            </div>
+            <div>
+                <pre>{{ JSON.stringify(geometries, null, 4) }}</pre>
+            </div>
         </div>
     </div>
 </template>
@@ -105,6 +115,22 @@ function modifyend(e: ModifyEvent) {
     }
 
     .data {
+        .buttons {
+            display: flex;
+            flex-direction: row;
+            
+            .format-btn {
+                border: none;
+                background-color: #eaeaea;
+                cursor: pointer;
+                padding: 6px 8px;
+                
+                &.active {
+                    background-color: cornflowerblue;
+                    color: white;
+                }
+            }
+        }
         pre {
             white-space: pre-wrap;
         }
