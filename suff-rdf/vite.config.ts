@@ -15,5 +15,5 @@ export default defineConfig({
             name: "suff-rdf",
             fileName: "suff-rdf",
         },
-    },
+    }
 });

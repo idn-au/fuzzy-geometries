@@ -1,6 +1,7 @@
 import { Store, Parser, DataFactory, type Quad_Object, Quad_Subject } from "n3";
 import { JsonLdParser } from "jsonld-streaming-parser";
-import { promisifyEventEmitter } from 'event-emitter-promisify';
+import { promisifyEventEmitter } from "event-emitter-promisify";
+import { FormatOptions, type ParseFormat } from "./types";
 // import { DEFAULT_PREFIXES } from "./consts";
 
 const { namedNode } = DataFactory;
@@ -14,8 +15,17 @@ export class RDFStore {
         // this.prefixes = DEFAULT_PREFIXES;
     }
 
-    public async load(data: string, format?: string) {
-        if (format && /json/.test(format)) { // JSON-LD
+    /**
+     * Parses RDF data as a string and loads into N3 Store
+     * 
+     * @param data the data as a string
+     * @param format the specified format of the RDF, defaults to "turtle"
+     */
+    public async load(data: string, format: ParseFormat = "turtle") {
+        if (!FormatOptions.includes(format)) {
+            throw new TypeError("Invalid parser format");
+        }
+        if (/json/.test(format)) { // JSON-LD
             const parser = new JsonLdParser();
             parser.write(data);
             parser.end();

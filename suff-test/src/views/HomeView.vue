@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue";
-import { parse, type FeatColl } from "suff-rdf";
-import { TEST_TURTLE_DATA_NOMINAL, TEST_JSONLD_DATA_NOMINAL, TEST_TURTLE_DATA_RATIO } from "@/util/data";
+import { convert as parse, type FeatColl } from "suff-rdf";
+import { TEST_TURTLE_DATA_NOMINAL, TEST_JSONLD_DATA_NOMINAL, TEST_TURTLE_DATA_RATIO, TEST_TURTLE_DATA_ORDINAL_PERP } from "@/util/data";
 import SuffMap from "@/components/SuffMap.vue";
 
 const data = ref("");
@@ -18,6 +18,11 @@ async function loadTurtleNominal() {
 async function loadJSONLDNominal() {
     data.value = TEST_JSONLD_DATA_NOMINAL;
     featureCollection.value = await parse(TEST_JSONLD_DATA_NOMINAL, "application/json-ld");
+}
+
+async function loadTurtleOrdinalPerp() {
+    data.value = TEST_TURTLE_DATA_ORDINAL_PERP;
+    featureCollection.value = await parse(TEST_TURTLE_DATA_ORDINAL_PERP, "text/turtle");
 }
 
 async function loadTurtleRatio() {
@@ -39,6 +44,7 @@ function handleClear() {
     <div class="buttons">
         <button @click="loadTurtleNominal">Load Turtle Nominal</button>
         <button @click="loadJSONLDNominal">Load JSON-LD Nominal</button>
+        <button @click="loadTurtleOrdinalPerp">Load Turtle Ordinal Perp</button>
         <button @click="loadTurtleRatio">Load Turtle Ratio</button>
         <button @click="handleClear">Clear</button>
     </div>

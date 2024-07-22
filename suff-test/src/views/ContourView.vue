@@ -5,6 +5,7 @@ import { Layers, Sources, Styles } from "vue3-openlayers";
 import { GeoJSON } from "ol/format";
 import type { FeatureLike } from "ol/Feature";
 import type Style from "ol/style/Style";
+import { generateGeomExtremes } from "suff-rdf"
 import BaseMap from "@/components/BaseMap.vue";
 
 const geoJson = new GeoJSON();
@@ -323,80 +324,82 @@ const features = {
 };
 
 const gridSpacing = ref(2);
-const contourCount = ref(50);
+const contourCount = ref(10);
 
 const baseMapRef = ref<InstanceType<typeof BaseMap> | null>(null);
 const focusSourceRef = ref<InstanceType<typeof Sources.OlSourceVector> | null>(null); // the source to centre on
 
-const extremes = computed(() => {
-    const fObj = structuredClone(features);
-    fObj.features.sort((a, b) => a.properties.certainty - b.properties.certainty);
+// const extremes = computed(() => {
+//     const fObj = structuredClone(features);
+//     fObj.features.sort((a, b) => a.properties.certainty - b.properties.certainty);
 
-    const featureColl = featureCollection([]);
+//     const featureColl = featureCollection([]);
 
-    if (fObj.features.length > 1) {
-        // generate 0 certainty polygon - might need to be a buffer of the outline/union of all features?
-        const lineFirst = polygonToLine(fObj.features[0], {
-            properties: {
-                certainty: fObj.features[0].properties["certainty"]
-            }
-        });
+//     if (fObj.features.length > 1) {
+//         // generate 0 certainty polygon - might need to be a buffer of the outline/union of all features?
+//         const lineFirst = polygonToLine(fObj.features[0], {
+//             properties: {
+//                 certainty: fObj.features[0].properties["certainty"]
+//             }
+//         });
 
-        const lineSecond = polygonToLine(fObj.features[1], {
-            properties: {
-                certainty: fObj.features[1].properties["certainty"]
-            }
-        });
+//         const lineSecond = polygonToLine(fObj.features[1], {
+//             properties: {
+//                 certainty: fObj.features[1].properties["certainty"]
+//             }
+//         });
 
-        const zeroDistances = explode(lineSecond).features.map(f => pointToLineDistance(f, lineFirst));
-        const zeroMeanDistance = zeroDistances.reduce((prev, curr) => prev + curr, 0) / zeroDistances.length;
+//         const zeroDistances = explode(lineSecond).features.map(f => pointToLineDistance(f, lineFirst));
+//         const zeroMeanDistance = zeroDistances.reduce((prev, curr) => prev + curr, 0) / zeroDistances.length;
         
-        const polygonZero = buffer(fObj.features[0], zeroMeanDistance);
-        polygonZero.properties.certainty = 0;
+//         const polygonZero = buffer(fObj.features[0], zeroMeanDistance);
+//         polygonZero.properties.certainty = 0;
 
-        featureColl.features.push(polygonZero);
+//         featureColl.features.push(polygonZero);
 
-        // generate 1 certainty polygon
-        const lineSecondLast = polygonToLine(fObj.features[fObj.features.length - 2], {
-            properties: {
-                certainty: fObj.features[fObj.features.length - 2].properties["certainty"]
-            }
-        });
+//         // generate 1 certainty polygon
+//         const lineSecondLast = polygonToLine(fObj.features[fObj.features.length - 2], {
+//             properties: {
+//                 certainty: fObj.features[fObj.features.length - 2].properties["certainty"]
+//             }
+//         });
 
-        const lineLast = polygonToLine(fObj.features[fObj.features.length - 1], {
-            properties: {
-                certainty: fObj.features[fObj.features.length - 1].properties["certainty"]
-            }
-        });
+//         const lineLast = polygonToLine(fObj.features[fObj.features.length - 1], {
+//             properties: {
+//                 certainty: fObj.features[fObj.features.length - 1].properties["certainty"]
+//             }
+//         });
 
-        const oneDistances = explode(lineLast).features.map(f => pointToLineDistance(f, lineSecondLast));
-        const oneMeanDistance = oneDistances.reduce((prev, curr) => prev + curr, 0) / oneDistances.length;
+//         const oneDistances = explode(lineLast).features.map(f => pointToLineDistance(f, lineSecondLast));
+//         const oneMeanDistance = oneDistances.reduce((prev, curr) => prev + curr, 0) / oneDistances.length;
         
-        var polygonOne = buffer(fObj.features[fObj.features.length - 1], -oneMeanDistance);
-        if (!polygonOne) {
-            polygonOne = centroid(fObj.features[fObj.features.length - 1])
-        }
-        polygonOne.properties.certainty = 1;
-        featureColl.features.push(polygonOne);
-    }
+//         var polygonOne = buffer(fObj.features[fObj.features.length - 1], -oneMeanDistance);
+//         if (!polygonOne) {
+//             polygonOne = centroid(fObj.features[fObj.features.length - 1])
+//         }
+//         polygonOne.properties.certainty = 1;
+//         featureColl.features.push(polygonOne);
+//     }
 
-    return featureColl;
-});
+//     return featureColl;
+// });
+
+const extremes = computed(() => generateGeomExtremes(features));
 
 const triangles = computed(() => {
     const fObj = structuredClone(features);
     const featureColl = featureCollection([]);
 
-    fObj.features.forEach(f => {
-        const line = polygonToLine(f, {
-            properties: {
-                certainty: f.properties["certainty"]
-            }
-        });
+    // fObj.features.forEach(f => {
+    //     const line = polygonToLine(f, {
+    //         properties: {
+    //             certainty: f.properties["certainty"]
+    //         }
+    //     });
         
-        const exp = explode(line);
-        featureColl.features.push(...exp.features);
-    });
+    //     const exp = explode(line);
+    //     featureColl.features.push(...exp.features);
+    // });
 
     // do the same for generated 0 & 1 polygons
     extremes.value.features.forEach(f => {
@@ -443,16 +446,16 @@ const contours = computed(() => {
     const fObj = structuredClone(features);
     const featureColl = featureCollection([]);
 
-    fObj.features.forEach(f => {
-        const line = polygonToLine(f, {
-            properties: {
-                certainty: f.properties["certainty"]
-            }
-        });
+    // fObj.features.forEach(f => {
+    //     const line = polygonToLine(f, {
+    //         properties: {
+    //             certainty: f.properties["certainty"]
+    //         }
+    //     });
         
-        const exp = explode(line);
-        featureColl.features.push(...exp.features);
-    });
+    //     const exp = explode(line);
+    //     featureColl.features.push(...exp.features);
+    // });
 
     // do the same for generated 0 & 1 polygons
     extremes.value.features.forEach(f => {
@@ -525,7 +528,7 @@ onMounted(() => {
     </div>
     <BaseMap ref="baseMapRef" :focusSourceRef="focusSourceRef" tooltip height="600px" width="1000px">
         <template #layers>
-            <Layers.OlVectorLayer name="Features" :visible="false">
+            <Layers.OlVectorLayer name="Features">
                 <!-- @vue-ignore -->
                 <Sources.OlSourceVector :format="geoJson" :features="geoJson.readFeatures(features)">
                     <Styles.OlStyle :overrideStyleFunction="styleFunction">
@@ -564,7 +567,7 @@ onMounted(() => {
                     </Styles.OlStyle> -->
                 </Sources.OlSourceVector>
             </Layers.OlVectorLayer>
-            <Layers.OlVectorLayer name="Contours">
+            <Layers.OlVectorLayer name="Contours" :visible="false">
                 <!-- @vue-ignore -->
                 <Sources.OlSourceVector :format="geoJson" :features="geoJson.readFeatures(contours)">
                     <Styles.OlStyle :overrideStyleFunction="styleFunction">
