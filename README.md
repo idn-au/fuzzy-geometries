@@ -1,6 +1,19 @@
 # Fuzzy Geometries SUFF Software
 This repo is for the software implementation of the SUFF model in JavaScript, which will be an NPM package as well as an online test UI, ~~available here - [suff.idnau.org](suff.idnau.org)~~ (yet to be deployed).
 
+## Table of Contents
+
+- [The SUFF Model](#the-suff-model)
+- [Installation](#installation)
+    - [NPM Package](#install-npm)
+    - [Test UI](#install-ui)
+- [Usage](#usage)
+    - [NPM Package](#usage-npm)
+    - [Test UI](#usage-ui)
+- [Implementation](#implementation)
+- [Copyright and License](#copyright-and-license)
+- [Contact](#contact)
+
 ## The SUFF Model
 The [Spatial Uncertainty for Features & Functions (SUFF) model](https://w3id.org/suff/) is a new cutting-edge model to be included in GeoSPARQL 1.3 which provides a way to describe spatial uncertainty in data.
 
@@ -10,6 +23,7 @@ Features in the SUFF model fit into one of three levels of measurement (see diag
 - "Numeric": Order and certainty values specified, optionally provide 0 & 1 certainty geometries
 
 ![SUFF Model Diagram](docs/images/model.png)
+Credit: Nicholas Car - https://w3id.org/suff/
 
 Example of a SUFF feature in RDF:
 ```turtle
@@ -46,7 +60,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 ## Installation
 
-### NPM Package
+<h3 id="install-npm">NPM Package</h3>
 To install, run the following using your favourite npm package manager (not yet published):
 
 ```bash
@@ -61,7 +75,7 @@ or
 npm install suff
 ```
 
-### Test UI
+<h3 id="install-ui">Test UI</h3>
 This project uses [PNPM](https://pnpm.io), so ensure that's installed first. Clone this repo then run the following at the project root directory to install the test UI application on your machine:
 ```bash
 pnpm install
@@ -69,7 +83,7 @@ pnpm install
 
 ## Usage
 
-### NPM Package
+<h3 id="usage-npm">NPM Package</h3>
 An example of importing & using the SUFF package using the blur function:
 
 ```javascript
@@ -86,7 +100,7 @@ Functions available from the NPM package (TBD):
     - option for map-friendly GeoJSON (1 feature per geometry)
 - `blur()` - for generating contours for blurring with a contour count parameter
 
-### Test UI
+<h3 id="usage-ui">Test UI</h3>
 Run the following to run a dev server for the test UI application:
 
 ```bash
@@ -112,7 +126,7 @@ pnpm dev
 7. display a large number of contours with opacity to visualise blurring
 ![SUFF Model Diagram](docs/images/map6.png)
 
-## Copyright & License
+## Copyright and License
 &copy; Indigenous Data Network 2024. This software is licensed for reuse using the [BSD 3-Clause license](https://opensource.org/license/bsd-3-clause).
 
 ## Contact
