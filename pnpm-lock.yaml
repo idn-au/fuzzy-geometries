@@ -151,6 +151,9 @@ importers:
       '@tsconfig/node20':
         specifier: ^20.1.4
         version: 20.1.4
+      '@types/geojson':
+        specifier: ^7946.0.14
+        version: 7946.0.14
       '@types/node':
         specifier: ^20.14.11
         version: 20.14.11
@@ -2399,7 +2402,7 @@ packages:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.4.30(typescript@5.5.3)
-      vue-component-type-helpers: 2.0.26
+      vue-component-type-helpers: 2.0.29
     dev: true
 
   /@terraformer/wkt@2.2.1:
@@ -8005,6 +8008,10 @@ packages:
 
   /vue-component-type-helpers@2.0.26:
     resolution: {integrity: sha512-sO9qQ8oC520SW6kqlls0iqDak53gsTVSrYylajgjmkt1c0vcgjsGSy1KzlDrbEx8pm02IEYhlUkU5hCYf8rwtg==}
+    dev: true
+
+  /vue-component-type-helpers@2.0.29:
+    resolution: {integrity: sha512-58i+ZhUAUpwQ+9h5Hck0D+jr1qbYl4voRt5KffBx8qzELViQ4XdT/Tuo+mzq8u63teAG8K0lLaOiL5ofqW38rg==}
     dev: true
 
   /vue-docgen-api@4.79.1(vue@3.4.30):

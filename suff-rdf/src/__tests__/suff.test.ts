@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
+import type { Quad_Object } from "n3";
 import { levelOfMeasurement, convert, nominal, ordinal, interval, ratio, generateGeomExtremes } from "../suff";
 import { RDFStore } from "../store";
 import { TEST_TURTLE_DATA_NOMINAL, TEST_TURTLE_DATA_ORDINAL, TEST_TURTLE_DATA_INTERVAL, TEST_TURTLE_DATA_RATIO } from "../data";
-import { Quad_Object } from "n3";
 
 describe("levelOfMeasurement", () => {
     async function setupLoMTest(data: string): Promise<{ store: RDFStore, geometryCollection: Quad_Object }> {
