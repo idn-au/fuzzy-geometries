@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "snapped",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": 21, "left": 153.08337730885239, "top": -27.169203362871386, "right": 153.0842756241365, "bottom": -27.168404163095641, "row_index": 2, "col_index": 3 }, "geometry": { "type": "Point", "coordinates": [ 153.083383856712032, -27.325794380939378 ] } }
+]
+}
