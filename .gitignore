@@ -129,4 +129,10 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-suff-map/*
+.idea
+DS_Store
+
+packages/suff/src/components/BaseMap.vue
+packages/suff/src/components/BaseMapOld.vue
+packages/suff/src/components/FuzzyMapOld.vue
+packages/suff/src/components/SuffMap.vue

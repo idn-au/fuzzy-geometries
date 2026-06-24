@@ -1,4 +1,2 @@
 packages:
-  - suff-rdf
-  - suff-map
-  - suff-test
+  - packages/*

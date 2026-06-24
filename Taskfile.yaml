@@ -1,0 +1,50 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  install:
+    cmd: pnpm install
+
+  run:lib:
+    dir: packages/suff
+    cmd: pnpm dev
+
+  build:lib:
+    dir: packages/suff
+    cmd: pnpm build
+
+  build:
+    cmds:
+      - task: build:lib
+
+  run:demo:
+    dir: packages/suff-demo
+    cmd: pnpm dev
+
+  generate:
+    dir: packages/suff-demo
+    cmd: pnpm generate
+
+  run:generate:
+    dir: packages/suff-demo
+    cmd: npx serve .output/public
+
+  run:
+    cmds:
+      - task: install
+      - task: build
+      - task: run:demo
+
+  type:lib:
+    dir: packages/suff
+    cmd: pnpm types
+
+  type:demo:
+    dir: packages/suff-demo
+    cmd: pnpm types
+
+  type:
+    cmds:
+      - task: type:lib
+      - task: type:demo

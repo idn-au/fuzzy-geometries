@@ -1,7 +1,7 @@
 {
     "name": "suff",
-    "version": "0.0.1",
-    "description": "Library for SUFF RDF geometries",
+    "version": "0.1.0",
+    "description": "Library for SUFF fuzzy geometries",
     "main": "index.js",
     "scripts": {
         "start": "pnpm --stream -r start",

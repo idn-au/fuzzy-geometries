@@ -1,5 +1,7 @@
 # Fuzzy Geometries SUFF Software
-This repo is for the software implementation of the SUFF model in JavaScript, which will be an NPM package as well as an online test UI, ~~available here - [suff.idnau.org](suff.idnau.org)~~ (yet to be deployed).
+This repo is for the software implementation of the SUFF model in JavaScript, which will be an NPM package as well as an online test UI.
+
+- Available at [fuzzy.idnau.org](https://fuzzy.idnau.org)
 
 ## Table of Contents
 
