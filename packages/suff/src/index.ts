@@ -1,12 +1,12 @@
-import "./assets/index.css";
-
-import Map from "./components/Map.vue";
 import FuzzyMap from "./components/FuzzyMap.vue";
 
-export * from "./types";
+import Map from "./components/Map.vue";
+import "./assets/index.css";
+
 export * from "./suff";
+export * from "./types";
 
 export {
-    Map,
     FuzzyMap,
+    Map,
 };

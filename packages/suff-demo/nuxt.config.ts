@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: "2025-07-15",
-    devtools: {enabled: true},
+    devtools: { enabled: true },
     modules: ["shadcn-nuxt", "@nuxtjs/color-mode", "@nuxt/image"],
     css: [
         "suff/suff.css",
@@ -29,11 +29,11 @@ export default defineNuxtConfig({
             meta: [
                 { name: "apple-mobile-web-app-title", content: "IDN Fuzzy Geometries Demo" },
             ],
-            title: "IDN Fuzzy Geometries Demo"
-        }
+            title: "IDN Fuzzy Geometries Demo",
+        },
     },
     shadcn: {
         prefix: "",
-        componentDir: "./app/components/ui"
-    }
+        componentDir: "./app/components/ui",
+    },
 });

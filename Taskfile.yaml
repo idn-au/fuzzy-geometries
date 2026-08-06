@@ -48,3 +48,6 @@ tasks:
     cmds:
       - task: type:lib
       - task: type:demo
+
+  lint:
+    cmd: pnpm lint

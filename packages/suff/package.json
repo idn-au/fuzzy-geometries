@@ -1,7 +1,7 @@
 {
     "name": "suff",
-    "version": "0.1.0",
     "type": "module",
+    "version": "0.1.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/idn-au/fuzzy-geometries.git",
@@ -12,11 +12,6 @@
         "vue",
         "vuejs"
     ],
-    "files": [
-        "dist"
-    ],
-    "main": "./dist/suff.umd.cjs",
-    "module": "./dist/suff.js",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
@@ -28,7 +23,12 @@
             "require": "./dist/suff.css"
         }
     },
+    "main": "./dist/suff.umd.cjs",
+    "module": "./dist/suff.js",
     "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "dev": "vite",
         "build": "vue-tsc && vite build",

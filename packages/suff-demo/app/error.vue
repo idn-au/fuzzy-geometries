@@ -11,13 +11,15 @@ const props = defineProps<{
 <template>
     <NuxtLayout>
         <div>
-            <h2>{{ props.error.statusCode }}: {{ props.error.statusMessage }}</h2>
+            <h2>{{ props.error.status }}: {{ props.error.statusText }}</h2>
             <p>{{ props.error.message }}</p>
             <div class="overflow-auto">
                 <pre>{{ props.error.stack }}</pre>
             </div>
-            <Button as-child>
-                <NuxtLink to="/">Go home</NuxtLink>
+            <Button asChild>
+                <NuxtLink to="/">
+                    Go home
+                </NuxtLink>
             </Button>
         </div>
     </NuxtLayout>

@@ -1,0 +1,36 @@
+name: Run tests on PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
+          run_install: false
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'pnpm'
+      - name: Install workspace
+        run: pnpm install
+      - name: Type check suff package
+        working-directory: packages/suff
+        run: pnpm types
+      - name: Build suff package
+        working-directory: packages/suff
+        run: pnpm build
+      - name: Type check Nuxt demo
+        working-directory: packages/suff-demo
+        run: pnpm types
+      - name: Run generate Nuxt demo
+        working-directory: packages/suff-demo
+        run: pnpm generate

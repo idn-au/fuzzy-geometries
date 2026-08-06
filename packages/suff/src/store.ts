@@ -1,7 +1,9 @@
-import { Store, Parser, DataFactory, type Quad_Object, Quad_Subject } from "n3";
-import { JsonLdParser } from "jsonld-streaming-parser";
+import type { Quad_Object, Quad_Subject } from "n3";
+import type { ParseFormat } from "./types";
 import { promisifyEventEmitter } from "event-emitter-promisify";
-import { FormatOptions, type ParseFormat } from "./types";
+import { JsonLdParser } from "jsonld-streaming-parser";
+import { DataFactory, Parser, Store } from "n3";
+import { FormatOptions } from "./types";
 // import { DEFAULT_PREFIXES } from "./consts";
 
 const { namedNode } = DataFactory;
@@ -17,7 +19,7 @@ export class RDFStore {
 
     /**
      * Parses RDF data as a string and loads into N3 Store
-     * 
+     *
      * @param data the data as a string
      * @param format the specified format of the RDF, defaults to "turtle"
      */
@@ -30,8 +32,9 @@ export class RDFStore {
             parser.write(data);
             parser.end();
             await promisifyEventEmitter(this.store.import(parser));
-        } else {
-            const parser = new Parser({ format: format });
+        }
+        else {
+            const parser = new Parser({ format });
             const p = parser.parse(data);
             this.store.addQuads(p);
         }
@@ -45,7 +48,8 @@ export class RDFStore {
         const subjs = this.store.getSubjects(namedNode(predicate), namedNode(object), null);
         if (subjs.length === 0) {
             return undefined;
-        } else {
+        }
+        else {
             return subjs[0];
         }
     }
@@ -53,9 +57,10 @@ export class RDFStore {
     public getObjects(subject: string, predicate: string | string[]): Quad_Object[] {
         if (typeof predicate === "string") {
             return this.store.getObjects(namedNode(subject), namedNode(predicate), null);
-        } else {
+        }
+        else {
             const objs: Quad_Object[] = [];
-            predicate.forEach(p => {
+            predicate.forEach((p) => {
                 objs.push(...this.store.getObjects(namedNode(subject), namedNode(p), null));
             });
             return objs;
@@ -66,14 +71,16 @@ export class RDFStore {
         let objs: Quad_Object[] = [];
         if (typeof predicate === "string") {
             objs = this.store.getObjects(namedNode(subject), namedNode(predicate), null);
-        } else {
-            predicate.forEach(p => {
+        }
+        else {
+            predicate.forEach((p) => {
                 objs.push(...this.store.getObjects(namedNode(subject), namedNode(p), null));
             });
         }
         if (objs.length === 0) {
             return undefined;
-        } else {
+        }
+        else {
             return objs[0];
         }
     }

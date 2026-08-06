@@ -2,20 +2,20 @@
 import type { HTMLAttributes } from "vue";
 import { cn } from "~/lib/utils";
 
-const route = useRoute();
-
 const props = defineProps<{
     class?: HTMLAttributes["class"];
 }>();
 
+const route = useRoute();
+
 const links = [
     {
         label: "Home",
-        to: "/"
+        to: "/",
     },
     {
         label: "About",
-        to: "/about"
+        to: "/about",
     },
 ];
 </script>
@@ -27,9 +27,11 @@ const links = [
             variant="ghost"
             class="justify-center rounded-none border-b-2 text-xs md:text-sm px-1 md:px-3"
             :class="route.path === link.to ? 'border-b-isu-red' : 'border-b-transparent'"
-            as-child
+            asChild
         >
-            <NuxtLink :to="link.to">{{ link.label }}</NuxtLink>
+            <NuxtLink :to="link.to">
+                {{ link.label }}
+            </NuxtLink>
         </Button>
     </nav>
 </template>

@@ -1,26 +1,3 @@
-export const FormatOptions = ["text/turtle",
-    "Turtle",
-    "turtle",
-    "ttl",
-    "application/n-triples",
-    "N-Triples",
-    "n-triples",
-    "nt",
-    "text/n3",
-    "Notation3",
-    "notation3",
-    "N3",
-    "n3",
-    "application/ld+json",
-    "JSON-LD",
-    "jsonld",
-    "application/n-quads",
-    "N-Quads",
-    "n-quads",
-    "nq",
-    "application/trig",
-    "TriG",
-    "trig",
-] as const;
+export const FormatOptions = ["text/turtle", "Turtle", "turtle", "ttl", "application/n-triples", "N-Triples", "n-triples", "nt", "text/n3", "Notation3", "notation3", "N3", "n3", "application/ld+json", "JSON-LD", "jsonld", "application/n-quads", "N-Quads", "n-quads", "nq", "application/trig", "TriG", "trig"] as const;
 
 export type ParseFormat = typeof FormatOptions[number];

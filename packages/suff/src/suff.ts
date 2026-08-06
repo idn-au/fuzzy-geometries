@@ -1,13 +1,13 @@
-import { Quad_Object } from "n3";
-import { wktToGeoJSON } from "@terraformer/wkt";
-import { polygonToLine, explode, featureCollection, buffer, pointToLineDistance, centroid, tin, pointGrid, bbox, tag, planepoint, isobands } from "@turf/turf";
-import type {FeatureCollection, Feature, Geometry, Polygon, MultiPolygon, Point} from "geojson";
-import { RDFStore } from "./store";
+import type { Feature, FeatureCollection, Geometry, MultiPolygon, Point, Polygon } from "geojson";
+import type { Quad_Object } from "n3";
 import type { ParseFormat } from "./types";
+import { wktToGeoJSON } from "@terraformer/wkt";
+import { bbox, buffer, centroid, explode, featureCollection, isobands, planepoint, pointGrid, pointToLineDistance, polygonToLine, tag, tin } from "@turf/turf";
+import { RDFStore } from "./store";
 
 /**
  * Determines the level of measurement for the feature
- * 
+ *
  * Nominal: GeometryCollection contains `rdfs:member`
  *
  * Ordinal: GeometryCollection contains `rdfs:_N`
@@ -15,9 +15,9 @@ import type { ParseFormat } from "./types";
  * Interval: GeometryCollection contains `rdfs:_N`, certainty values specified
  *
  * Ratio: GeometryCollection contains `rdfs:_N`, certainty 0 & 1 geometries specified
- * 
- * @param store 
- * @param geometryCollection 
+ *
+ * @param store
+ * @param geometryCollection
  * @returns the level of measurement or undefined
  */
 export function levelOfMeasurement(store: RDFStore, geometryCollection: Quad_Object): "nominal" | "ordinal" | "interval" | "ratio" | undefined {
@@ -25,7 +25,8 @@ export function levelOfMeasurement(store: RDFStore, geometryCollection: Quad_Obj
     const firstOrdered = store.getObject(geometryCollection.id, "http://www.w3.org/2000/01/rdf-schema#_1");
     if (members.length > 0) {
         return "nominal";
-    } else if (firstOrdered) {
+    }
+    else if (firstOrdered) {
         let orderingPredicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#value";
         const orderPredicate = store.getObjects(geometryCollection.id, "http://w3id.org/suff/certaintyIndicator");
         if (orderPredicate.length > 0) {
@@ -35,10 +36,12 @@ export function levelOfMeasurement(store: RDFStore, geometryCollection: Quad_Obj
         if (certainty.length > 0) {
             if (Number(certainty[0].value) === 0) { // assume specify only 0 for now
                 return "ratio";
-            } else {
+            }
+            else {
                 return "interval";
             }
-        } else {
+        }
+        else {
             return "ordinal";
         }
     }
@@ -48,7 +51,7 @@ export function levelOfMeasurement(store: RDFStore, geometryCollection: Quad_Obj
 
 /**
  * Converts SUFF RDF into a GeoJSON Feature Collection
- * 
+ *
  * @param data the data as a string
  * @param format the format of the data
  * @returns a Feature Collection object
@@ -64,7 +67,8 @@ export async function convert(data: string, format?: ParseFormat): Promise<Featu
     };
 
     const lom = levelOfMeasurement(store, geometryCollection);
-    if (!lom) throw new Error("Unable to detect level of measurement");
+    if (!lom)
+        throw new Error("Unable to detect level of measurement");
 
     switch (lom) {
         case "nominal":
@@ -80,7 +84,7 @@ export async function convert(data: string, format?: ParseFormat): Promise<Featu
 
 /**
  * For unordered geometries, all weighted equally
- * 
+ *
  * @param geometryCollection the `geo:GeometryCollection`
  * @param store the N3.js-based RDF store object
  * @param featureProps the `properties` object of the `geo:Feature`
@@ -91,7 +95,7 @@ export function nominal(geometryCollection: Quad_Object, store: RDFStore, featur
         type: "FeatureCollection",
         features: [],
     };
-    
+
     const geoms = store.getObjects(geometryCollection.id, "http://www.w3.org/2000/01/rdf-schema#member");
 
     if (geoms.length === 0) {
@@ -101,18 +105,18 @@ export function nominal(geometryCollection: Quad_Object, store: RDFStore, featur
     const features: Feature[] = [];
 
     const certainty = 1 / geoms.length;
-    geoms.forEach(geom => {
+    geoms.forEach((geom) => {
         const g = store.getObject(geom.id, "http://www.opengis.net/ont/geosparql#asWKT")!.value;
         const citation = store.getObject(geom.id, "https://schema.org/citation")?.value;
         const geometry = wktToGeoJSON(g) as Geometry;
         const feature = {
             type: "Feature",
             properties: {
-                certainty: certainty,
-                citation: citation,
+                certainty,
+                citation,
                 ...featureProps,
             },
-            geometry: geometry,
+            geometry,
         } as Feature;
         features.push(feature);
     });
@@ -124,10 +128,10 @@ export function nominal(geometryCollection: Quad_Object, store: RDFStore, featur
 
 /**
  * For ordered geometries with no certainty values specified
- * 
- * Certainty is estimated for each geometry as equally spaced values increasing linearly with order.  
+ *
+ * Certainty is estimated for each geometry as equally spaced values increasing linearly with order.
  * e.g. for 3 features - 0.25, 0.5, 0.75
- * 
+ *
  * @param geometryCollection the `geo:GeometryCollection`
  * @param store the N3.js-based RDF store object
  * @param featureProps the `properties` object of the `geo:Feature`
@@ -141,7 +145,8 @@ export function ordinal(geometryCollection: Quad_Object, store: RDFStore, featur
     let length = 1;
     while (true) {
         const geom = store.getObject(geometryCollection.id, `http://www.w3.org/2000/01/rdf-schema#_${length}`);
-        if (!geom) break;
+        if (!geom)
+            break;
         length++;
     }
     const listLength = length - 1;
@@ -155,18 +160,18 @@ export function ordinal(geometryCollection: Quad_Object, store: RDFStore, featur
         const feature = {
             type: "Feature",
             properties: {
-                certainty: certainty,
-                citation: citation,
+                certainty,
+                citation,
                 ...featureProps,
             },
-            geometry: geometry,
+            geometry,
         } as Feature;
         features.push(feature);
     }
 
     const geojson: FeatureCollection = {
         type: "FeatureCollection",
-        features: features,
+        features,
     };
 
     return generateGeomExtremes(geojson);
@@ -174,7 +179,7 @@ export function ordinal(geometryCollection: Quad_Object, store: RDFStore, featur
 
 /**
  * For ordered geometries with certainty values specified
- * 
+ *
  * @param geometryCollection the `geo:GeometryCollection`
  * @param store the N3.js-based RDF store object
  * @param featureProps the `properties` object of the `geo:Feature`
@@ -193,7 +198,8 @@ export function interval(geometryCollection: Quad_Object, store: RDFStore, featu
     let index = 1;
     while (true) {
         const geom = store.getObject(geometryCollection.id, `http://www.w3.org/2000/01/rdf-schema#_${index}`);
-        if (!geom) break;
+        if (!geom)
+            break;
         const certainty = store.getObject(geom.id, orderingPredicate)?.value;
         const g = store.getObject(geom.id, "http://www.opengis.net/ont/geosparql#asWKT")!.value;
         const citation = store.getObject(geom.id, "https://schema.org/citation")?.value;
@@ -201,11 +207,11 @@ export function interval(geometryCollection: Quad_Object, store: RDFStore, featu
         const feature = {
             type: "Feature",
             properties: {
-                certainty: certainty,
-                citation: citation,
+                certainty,
+                citation,
                 ...featureProps,
             },
-            geometry: geometry,
+            geometry,
         } as Feature;
         features.push(feature);
         index++;
@@ -213,7 +219,7 @@ export function interval(geometryCollection: Quad_Object, store: RDFStore, featu
 
     const geojson: FeatureCollection = {
         type: "FeatureCollection",
-        features: features,
+        features,
     };
 
     return generateGeomExtremes(geojson);
@@ -221,7 +227,7 @@ export function interval(geometryCollection: Quad_Object, store: RDFStore, featu
 
 /**
  * For ordered geometries with 0 & 1 certainty geometries specified
- * 
+ *
  * @param geometryCollection the `geo:GeometryCollection`
  * @param store the N3.js-based RDF store object
  * @param featureProps the `properties` object of the `geo:Feature`
@@ -240,7 +246,8 @@ export function ratio(geometryCollection: Quad_Object, store: RDFStore, featureP
     let index = 1;
     while (true) {
         const geom = store.getObject(geometryCollection.id, `http://www.w3.org/2000/01/rdf-schema#_${index}`);
-        if (!geom) break;
+        if (!geom)
+            break;
         const certainty = store.getObject(geom.id, orderingPredicate)?.value;
         const g = store.getObject(geom.id, "http://www.opengis.net/ont/geosparql#asWKT")!.value;
         const citation = store.getObject(geom.id, "https://schema.org/citation")?.value;
@@ -248,11 +255,11 @@ export function ratio(geometryCollection: Quad_Object, store: RDFStore, featureP
         const feature = {
             type: "Feature",
             properties: {
-                certainty: certainty,
-                citation: citation,
+                certainty,
+                citation,
                 ...featureProps,
             },
-            geometry: geometry,
+            geometry,
         } as Feature;
         features.push(feature);
         index++;
@@ -260,7 +267,7 @@ export function ratio(geometryCollection: Quad_Object, store: RDFStore, featureP
 
     const geojson: FeatureCollection = {
         type: "FeatureCollection",
-        features: features,
+        features,
     };
 
     return geojson;
@@ -280,23 +287,23 @@ export function generateGeomExtremes(fObj: FeatureCollection): FeatureCollection
         // union -> convex
         const lineFirst = polygonToLine(fObj.features[0] as Feature<Polygon | MultiPolygon>, {
             properties: {
-                certainty: fObj.features[0].properties!["certainty"]
-            }
+                certainty: fObj.features[0].properties!.certainty,
+            },
         });
 
         const lineSecond = polygonToLine(fObj.features[1] as Feature<Polygon | MultiPolygon>, {
             properties: {
-                certainty: fObj.features[1].properties!["certainty"]
-            }
+                certainty: fObj.features[1].properties!.certainty,
+            },
         });
 
         // @ts-ignore
         const zeroDistances = explode(lineSecond).features.map(f => pointToLineDistance(f, lineFirst));
         const zeroMeanDistance = zeroDistances.reduce((prev, curr) => prev + curr, 0) / zeroDistances.length;
-        
+
         const polygonZero = buffer(fObj.features[0], zeroMeanDistance)!;
         polygonZero.properties = {
-            certainty: 0
+            certainty: 0,
         };
 
         featureColl.features.unshift(polygonZero); // add to start
@@ -304,26 +311,26 @@ export function generateGeomExtremes(fObj: FeatureCollection): FeatureCollection
         // generate 1 certainty polygon
         const lineSecondLast = polygonToLine(fObj.features[fObj.features.length - 2] as Feature<Polygon | MultiPolygon>, {
             properties: {
-                certainty: fObj.features[fObj.features.length - 2].properties!["certainty"]
-            }
+                certainty: fObj.features[fObj.features.length - 2].properties!.certainty,
+            },
         });
 
         const lineLast = polygonToLine(fObj.features[fObj.features.length - 1] as Feature<Polygon | MultiPolygon>, {
             properties: {
-                certainty: fObj.features[fObj.features.length - 1].properties!["certainty"]
-            }
+                certainty: fObj.features[fObj.features.length - 1].properties!.certainty,
+            },
         });
 
         // @ts-ignore
         // intersect -> convex?
         const oneDistances = explode(lineLast).features.map(f => pointToLineDistance(f, lineSecondLast));
         const oneMeanDistance = oneDistances.reduce((prev, curr) => prev + curr, 0) / oneDistances.length;
-        
+
         const negBuff = buffer(fObj.features[fObj.features.length - 1], -oneMeanDistance);
-        const polygonOne = negBuff ? negBuff : centroid(fObj.features[fObj.features.length - 1]);
+        const polygonOne = negBuff || centroid(fObj.features[fObj.features.length - 1]);
         polygonOne.properties = {
-            certainty: 1
-        }
+            certainty: 1,
+        };
         featureColl.features.push(polygonOne);
     }
 
@@ -334,14 +341,15 @@ export function generateTIN(features: FeatureCollection): FeatureCollection<Poly
     const featureColl: FeatureCollection<Point, any> = featureCollection([]);
 
     // do the same for generated 0 & 1 polygons
-    features.features.forEach(f => {
+    features.features.forEach((f) => {
         if (f.geometry.type === "Point") { // could be a point centroid
             featureColl.features.push(f as Feature<Point>);
-        } else {
+        }
+        else {
             const line = polygonToLine(f as Feature<Polygon | MultiPolygon>, {
                 properties: {
-                    certainty: f.properties!["certainty"]
-                }
+                    certainty: f.properties!.certainty,
+                },
             });
 
             const exp = explode(line);
@@ -364,7 +372,7 @@ export function generateInterpolatedGrid(features: FeatureCollection, tinTriangl
 
     // create index to find the tin triangles the points are in and set triangulated planepoint
     const tagged = tag(pGrid, tinTriangles, "index", "tin");
-    tagged.features.forEach(f => {
+    tagged.features.forEach((f) => {
         if (f.properties!.tin) {
             f.properties!.certainty = planepoint(f, tinTriangles.features[f.properties!.tin]);
         }
@@ -378,13 +386,13 @@ export function generateContours(features: FeatureCollection, gridSpacing: numbe
     const tinTriangles = generateTIN(extremes);
     const grid = generateInterpolatedGrid(extremes, tinTriangles, gridSpacing);
 
-    const isoTin = isobands(grid, Array.from(Array(contourCount + 1), (_, x) => x / contourCount), {
-        zProperty: "certainty"
+    const isoTin = isobands(grid, Array.from(Array.from({ length: contourCount + 1 }), (_, x) => x / contourCount), {
+        zProperty: "certainty",
     });
 
-    isoTin.features.forEach(f => {
+    isoTin.features.forEach((f) => {
         f.properties!.certainty = Number(f.properties!.certainty.split("-")[0]);
-    })
+    });
 
     return isoTin;
 }
