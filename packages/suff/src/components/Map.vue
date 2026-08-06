@@ -180,7 +180,7 @@ const loading = defineModel<boolean>("loading", {default: false});
  * A GeoJSON FeatureCollection of the drawn features on the map
  * @default {type: "FeatureCollection", features: []}
  */
-const drawnFeatures = defineModel<MapData>("drawn", {default: {type: "FeatureCollection", features: []}});
+const drawnFeatures = defineModel<MapData>("drawn", {default: () => ({type: "FeatureCollection", features: []})});
 
 const drawType = ref<DrawType>(props.defaultDrawType || (props.drawTypes && props.drawTypes.length > 0 && !props.drawTypes.includes("Polygon") ? props.drawTypes[0] : "Polygon"));
 const drawModeEnabled = ref(false);

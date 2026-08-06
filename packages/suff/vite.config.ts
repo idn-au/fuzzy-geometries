@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
@@ -6,11 +7,12 @@ import { resolve } from "path";
 import vueDevTools from "vite-plugin-vue-devtools";
 import tailwindcss from '@tailwindcss/vite'
 
+// https://vitejs.dev/config/
 export default defineConfig({
     plugins: [vue(), vueDevTools(), dts(), tailwindcss()],
     build: {
         lib: {
-            entry: resolve(__dirname, "src/index.ts"),
+            entry: resolve(import.meta.dirname, "src/index.ts"),
             name: "suff",
             fileName: "suff"
         },
@@ -27,5 +29,6 @@ export default defineConfig({
         alias: {
             "@": fileURLToPath(new URL("./src", import.meta.url))
         }
-    }
+    },
+    test: {},
 });
