@@ -41,6 +41,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://fuzzy.idnau.org
     env:
       OS_AUTH_URL: https://keystone.rc.nectar.org.au:5000/v3/
       OS_PROJECT_ID: 0a23562e67e04297b1dc3ce25a30858d
